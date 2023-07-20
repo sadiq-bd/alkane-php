@@ -1,0 +1,19 @@
+{
+    "name": "sadiq-bd/alkane-php",
+    "description": "The PHP Framework for easy and flexible Development (v2.0)",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Core\\": "core/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sadiq Ahmed",
+            "email": "sadiq.developer.bd@gmail.com"
+        }
+    ],
+    "require": {}
+}
