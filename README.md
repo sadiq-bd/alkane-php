@@ -1,5 +1,5 @@
 # Alkane PHP v2.0
-    The PHP Framework for easy and flexible Development (v2.0)
+    The PHP Framework for easy and flexible Development (v2.1)
 
 # Basic Usages
 
@@ -10,7 +10,7 @@
     Core\Router::get('/user/{id}', function($param) {
       return 'User ID - ' . $param['id'];
     });
-    Core\Router::get('/home', HomeControler::class, 'method');
+    Core\Router::get('/home', App\Controller\HomeController::class, 'method');
 
 
     # Database
@@ -29,12 +29,12 @@
     print_r($result->fetch(Core\SqlQuery::FETCH_ASSOC));
 
     # Session
-    Core\SessionControler::set('mail.smtp.host', 'smtp.gmail.com');
-    Core\SessionControler::set('mail.smtp.user', 'user@gmail.com');
-    Core\SessionControler::set('mail.smtp.password', '6456g654d26gv624');
+    Core\SessionController::set('mail.smtp.host', 'smtp.gmail.com');
+    Core\SessionController::set('mail.smtp.user', 'user@gmail.com');
+    Core\SessionController::set('mail.smtp.password', '6456g654d26gv624');
 
     // get data back
-    print_r(Core\SessionControler::get('mail.smtp'));
+    print_r(Core\SessionController::get('mail.smtp'));
     /* ^^^^^^^^^^^ result ^^^^^^^^^^^^
         Array (
             [host] => smtp.gmail.com

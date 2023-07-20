@@ -18,7 +18,7 @@ foreach ($dbconf as $key => $val) {
     Core\Database::setConfig($key, $val);
 } 
 
-
+// proccess routes and run the app
 require_once __DIR__ . '/app/routes.php';
 
 

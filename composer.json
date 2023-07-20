@@ -1,6 +1,6 @@
 {
     "name": "sadiq-bd/alkane-php",
-    "description": "The PHP Framework for easy and flexible Development (v2.0)",
+    "description": "The PHP Framework for easy and flexible Development (v2.1)",
     "type": "project",
     "license": "MIT",
     "autoload": {
