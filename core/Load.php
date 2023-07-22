@@ -13,13 +13,13 @@ class Load {
             extract($data);
         }
         
-        if (file_exists($file = __DIR__.'/../App/Views/' . $file . '.php')) {
+        if (file_exists($file = __DIR__.'/../app/Views/' . $file . '.php')) {
             include $file;
         }
     }
 
     public function model(string $model) {
-        if (file_exists($file = __DIR__.'/../App/Models/' . $model . '.php')) {
+        if (file_exists($file = __DIR__.'/../app/Models/' . $model . '.php')) {
             require_once $file;
         }
         return new ('\\Model\\' . $model);
