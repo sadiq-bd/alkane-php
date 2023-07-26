@@ -1,4 +1,4 @@
-# Alkane PHP v2.0
+# Alkane PHP v2.1
     The PHP Framework for easy and flexible Development (v2.1)
 
 # Basic Usages
