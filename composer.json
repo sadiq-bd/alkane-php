@@ -16,6 +16,6 @@
         }
     ],
     "require": {},
-    "minimum-stability": "stable",
+    "stability": "stable",
     "prefer-stable": true
 }
