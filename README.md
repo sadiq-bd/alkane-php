@@ -1,7 +1,7 @@
 # Alkane PHP v2.1
     The PHP Framework for easy and flexible Development (v2.1)
 # Installation
-<code>composer create-project sadiq-bd/alkane-php</code>
+    composer create-project sadiq-bd/alkane-php
 
 # Basic Usages
 
