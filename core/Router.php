@@ -1,236 +1,182 @@
 <?php
 
-namespace Core; 
+namespace Core;
 
 /**
  * Class Router
  *
+ * A simple, flexible routing system.
+ *
  * @category  Router
- * @package   Router
- * @author    Sadiq <sadiq.developer.bd@gmail.com>
- * @copyright Copyright (c) 2022
- * @version   2.0
- * @package   Alkane\Router
+ * @package   Core
+ * @author    Sadiq <sadiq.dev.bd@gmail.com>
+ * @version   2.2
  */
-
-
-class Router {
-
-    private $routes = array();
-
-    private $defaultMethod = 'main';
-
-    private $routeParamPattern = '\{((int|string|str)\:)?([a-z0-9]+)\}';
-
-    private $parameters = array();
-
+class Router
+{
+    private array $routes = [];
+    private string $defaultMethod = 'main';
+    private string $routeParamPattern = '\{((int|string|str)\:)?([a-z0-9]+)\}';
+    private array $parameters = [];
     private $errCallback;
 
-
-    public function route(string $requestMethod, string $route, string|callable $controller, string $method = null) {
-
-        if ($method === null) {
-            $method = $this->defaultMethod;
-            if (is_string($controller)) {
-                $contrl = @explode('::', $controller);
-                if (isset($contrl[0])) {
-                    $controller = $contrl[0];
-                }
-                if (isset($contrl[1])) {
-                    $method = str_replace('()', '', $contrl[1]);
-                }
-            }
-        }
-
+    public function route(string $requestMethod, string $route, string|callable $controller, ?string $method = null): void
+    {
+        $method = $method ?? $this->extractMethod($controller);
         $this->routes[] = [
             'route' => $route,
-            'requestMethod' => $requestMethod,
+            'requestMethod' => strtoupper($requestMethod),
             'controller' => $controller,
-            'method' => $method
+            'method' => $method,
         ];
-
     }
 
-    public function get(string $route, string|callable $controller, string $method = null) {
+    public function get(string $route, string|callable $controller, ?string $method = null): void
+    {
         $this->route('GET', $route, $controller, $method);
     }
 
-    public function post(string $route, string|callable $controller, string $method = null) {
+    public function post(string $route, string|callable $controller, ?string $method = null): void
+    {
         $this->route('POST', $route, $controller, $method);
     }
 
-    public function put(string $route, string|callable $controller, string $method = null) {
+    public function put(string $route, string|callable $controller, ?string $method = null): void
+    {
         $this->route('PUT', $route, $controller, $method);
     }
 
-    public function delete(string $route, string|callable $controller, string $method = null) {
+    public function delete(string $route, string|callable $controller, ?string $method = null): void
+    {
         $this->route('DELETE', $route, $controller, $method);
     }
 
-    public function basepath() {
-        $path = parse_url(trim($_SERVER['REQUEST_URI'], '/'), PHP_URL_PATH);
-        return ($path == null || empty($path)) ? '' : urldecode($path);
-    }
-
-    public function getRequestMethod() {
-        return $_SERVER['REQUEST_METHOD'];
-    }
-
-
-    private function isParamExist(string $route) {
-        preg_match_all('/'. $this->routeParamPattern . '/i', $route, $matches);
-        return array_slice($matches, 2);
-    }
-
-    private function isRequestMethodValid(string $method) {
-        return (bool)(strtolower($method) === strtolower($this->getRequestMethod()));
-    }
-
-    public function run(string $basepath = null) {
-
-        if ($basepath == null || empty($basepath)) {
-            $basepath = $this->basepath();
-        }
-
-        $basepath = trim($basepath, '/');
-        $routeIndex = -1;
-        foreach ($this->routes as $key => $value) {
-            $route = $value['route'];
-            $paramInfo = array();
-            if ($routeParams = $this->isParamExist($route)) {
-                
-                for ($paramIndex = 0; $paramIndex < count($routeParams[1]); $paramIndex++) {
-
-                    $paramInfo[$paramIndex]['paramType'] = !empty($routeParams[0][$paramIndex]) ? strtolower($routeParams[0][$paramIndex]) : null;
-                    $paramInfo[$paramIndex]['paramName'] = $routeParams[1][$paramIndex];
-
-                    switch ($paramInfo[$paramIndex]['paramType']) {
-                        case 'int':
-                            $regex = '[0-9]+';
-                            break;
-                        case 'string':
-                        case 'str':
-                            $regex = '.+';
-                            break;
-                        default:
-                            $regex = '.+';
-                            break;
-                    }
-
-                    if (null === $paramInfo[$paramIndex]['paramType']) {
-                        $paramInfo[$paramIndex]['param'] = '\{' . $paramInfo[$paramIndex]['paramName'] . '\}';
-                    } else {
-                        $paramInfo[$paramIndex]['param'] = '\{' . $paramInfo[$paramIndex]['paramType'] . '\:' . $paramInfo[$paramIndex]['paramName'] . '\}';
-                    }
-
-                    $paramInfo[$paramIndex]['paramExpression'] = '(' . $regex . ')';
-                    
-                    $route = preg_replace(
-                        '#' . $paramInfo[$paramIndex]['param'] . '#i',
-                        $paramInfo[$paramIndex]['paramExpression'],
-                        $route
-                    );
-
-                }
+    public function run(?string $basepath = null): void
+    {
+        $basepath = trim($basepath ?? $this->basepath(), '/');
+        foreach ($this->routes as $route) {
+            if ($this->matchRoute($route, $basepath)) {
+                $this->dispatch($route);
+                return;
             }
-
-
-            $routeExp = '/^'. str_replace('/', '\/', trim($route, '/')) . '$/i';
-
-            if (preg_match($routeExp, $basepath, $matches)) {        
-                if ($this->isRequestMethodValid($this->routes[$key]['requestMethod'])) {
-                    $routeIndex = $key;
-                    $matches = array_slice($matches, 1);
-                 
-                    $params = array();
-                    
-                    foreach ($matches as $k => $paramData) {
-                        $params[$paramInfo[$k]['paramName']] = $paramData;
-                    }
-                    
-                    $this->parameters = $params;
-                    
-                    break;
-                }
-            }
-            
-            
         }
-
-
-        if ($routeIndex > -1) {
-            if (is_callable($this->routes[$routeIndex]['controller'])) {
-                // callback function
-                $callbackReturn = call_user_func_array(
-                    $this->routes[$routeIndex]['controller'],
-                    [
-                        $this->parameters
-                    ]
-                );
-                if (is_string($callbackReturn)) {
-                    echo $callbackReturn;
-                }
-            } elseif (is_string($this->routes[$routeIndex]['controller'])) {
-                $controller = $this->routes[$routeIndex]['controller'];
-                $method = $this->routes[$routeIndex]['method'];
-                $controller = new $controller();
-                if ($this->getParams() === array()) {
-                    $controller->$method();
-                } else {
-                    $controller->$method($this->getParams());
-                }
-            }
-            
-        } else {
-            $this->defaultHandle();
-        }
-
+        $this->handleDefault();
     }
 
-
-    public function getParams() {
+    public function getParams(): array
+    {
         return $this->parameters;
     }
 
+    public function default(string|callable $callback, ?string $method = null): void
+    {
+        $this->errCallback = is_callable($callback) ? $callback : "{$callback}::{$method ?? $this->defaultMethod}";
+    }
 
-    public function default($callback, $method = null) {
-        if (is_callable($callback)) {
-            $this->errCallback = $callback;
-        } elseif (is_string($callback)) {
-            if ($method === null) {
-                $this->errCallback = $callback . '::' . $this->defaultMethod;
-            } else {
-                $this->errCallback = $callback . '::' . $method;
-            }
+    private function basepath(): string
+    {
+        $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+        return $path ? urldecode(trim($path, '/')) : '';
+    }
+
+    private function extractMethod(string|callable $controller): string
+    {
+        if (is_callable($controller)) {
+            return $this->defaultMethod;
+        }
+
+        [$controller, $method] = array_pad(explode('::', $controller), 2, $this->defaultMethod);
+        return str_replace('()', '', $method);
+    }
+
+    private function matchRoute(array $route, string $basepath): bool
+    {
+        $paramInfo = $this->parseRouteParams($route['route']);
+        $routePattern = $this->generateRoutePattern($route['route'], $paramInfo);
+
+        if (preg_match($routePattern, $basepath, $matches) && $this->isValidRequestMethod($route['requestMethod'])) {
+            $this->parameters = $this->extractParameters($paramInfo, array_slice($matches, 1));
+            return true;
+        }
+        return false;
+    }
+
+    private function parseRouteParams(string $route): array
+    {
+        preg_match_all("/{$this->routeParamPattern}/i", $route, $matches);
+        $params = [];
+        foreach ($matches[0] as $index => $match) {
+            $params[] = [
+                'type' => strtolower($matches[1][$index]) ?: null,
+                'name' => $matches[2][$index],
+                'pattern' => match (strtolower($matches[1][$index] ?? '')) {
+                    'int' => '[0-9]+',
+                    'string', 'str' => '.+',
+                    default => '.+',
+                },
+            ];
+        }
+        return $params;
+    }
+
+    private function generateRoutePattern(string $route, array $paramInfo): string
+    {
+        foreach ($paramInfo as $param) {
+            $route = str_replace(
+                "{{$param['type']}:{$param['name']}}",
+                "({$param['pattern']})",
+                $route
+            );
+        }
+        return '/^' . str_replace('/', '\/', trim($route, '/')) . '$/i';
+    }
+
+    private function extractParameters(array $paramInfo, array $matches): array
+    {
+        $parameters = [];
+        foreach ($matches as $index => $match) {
+            $parameters[$paramInfo[$index]['name']] = $match;
+        }
+        return $parameters;
+    }
+
+    private function isValidRequestMethod(string $method): bool
+    {
+        return strtoupper($method) === strtoupper($_SERVER['REQUEST_METHOD'] ?? '');
+    }
+
+    private function dispatch(array $route): void
+    {
+        $controller = $route['controller'];
+        $method = $route['method'];
+        $params = [$this->getParams()];
+
+        if (is_callable($controller)) {
+            echo (string)call_user_func_array($controller, $params);
+        } elseif (class_exists($controller)) {
+            $instance = new $controller();
+            echo (string)call_user_func_array([$instance, $method], $params);
         }
     }
 
-
-    private function defaultHandle() {
-
+    private function handleDefault(): void
+    {
         if (is_callable($this->errCallback)) {
-            $callbackReturn = call_user_func_array($this->errCallback, array(
-                array(
-                    'basepath' => $this->basepath(),
-                    'requestMethod' => $this->getRequestMethod()
-                )
-            ));
-            if (is_string($callbackReturn)) {
-                echo $callbackReturn;
-            }
+            echo (string)call_user_func($this->errCallback, [
+                'basepath' => $this->basepath(),
+                'requestMethod' => $this->getRequestMethod(),
+            ]);
         } elseif (is_string($this->errCallback)) {
-            $callback = explode('::', $this->errCallback);
-            $controller = new $callback[0];
-            $method = $callback[1];
-            $controller->$method();
+            [$controller, $method] = explode('::', $this->errCallback);
+            if (class_exists($controller)) {
+                $instance = new $controller();
+                $instance->$method();
+            }
         }
-        
     }
 
-
-
+    private function getRequestMethod(): string
+    {
+        return $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    }
 }
-
-
-
-
