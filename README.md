@@ -1,3 +1,5 @@
+<p align="left"> <img src="https://api.sadiq.us.to/app/github/repo/alkane-php/views" alt="" /> </p>
+
 # Alkane PHP v2.1
     The PHP Framework for easy and flexible Development (v2.1)
 # Installation
