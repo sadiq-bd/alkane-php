@@ -1,66 +1,143 @@
-<p align="left"> <img src="https://api.sadiq.us.to/app/github/repo/alkane-php/views" alt="" /> </p>
+<p align="center">
+  <img src="https://api.sadiq.us.to/app/github/repo/alkane-php/views" alt="Repository Views" />
+</p>
 
-# Alkane PHP v2.1
-    The PHP Framework for easy and flexible Development (v2.1)
-# Installation
-    composer create-project sadiq-bd/alkane-php
+<h1 align="center">Alkane PHP v2.1</h1>
+<p align="center">The lightweight, flexible PHP framework for rapid and robust development.</p>
 
-# Basic Usages
+---
 
-    # Router
-    Core\Router::get('/', function() {
-      return 'Hello World';
-    });
-    Core\Router::get('/user/{id}', function($param) {
-      return 'User ID - ' . $param['id'];
-    });
-    Core\Router::get('/home', App\Controller\HomeController::class, 'method');
+## 🚀 Features
 
+- Minimal, expressive routing
+- Simple, chainable database queries
+- Powerful session management
+- PSR-4 autoloading support
+- Easy integration with Apache or Nginx
+- Composer-ready
 
-    # Database
-    $dbInstance = Core\Database::getInstance(); // or > new Alkane\Database(?$custom_connection_name);
-    $sql = new Core\SqlQuery($dbInstance);
-    $sql->select([      // or > $sql->select() // for * all
-            'ID',
-            'name',
-            'email'
-        ])
-        ->from('table')
-        ->where('ID = :id', [
-            'id' => 20
-        ]);
-    $result = $sql->exec();
-    print_r($result->fetch(Core\SqlQuery::FETCH_ASSOC));
+---
 
-    # Session
-    Core\SessionController::set('mail.smtp.host', 'smtp.gmail.com');
-    Core\SessionController::set('mail.smtp.user', 'user@gmail.com');
-    Core\SessionController::set('mail.smtp.password', '6456g654d26gv624');
+## 📦 Installation
 
-    // get data back
-    print_r(Core\SessionController::get('mail.smtp'));
-    /* ^^^^^^^^^^^ result ^^^^^^^^^^^^
-        Array (
-            [host] => smtp.gmail.com
-            [user] => user@gmail.com
-            [password] => 6456g654d26gv624
-        )
-    *********************************/
+```bash
+composer create-project sadiq-bd/alkane-php
+```
 
+---
 
-# Apache rewrite rule for Router
-    RewriteEngine On
-    RewriteRule ^(.*)$ index.php [L,QSA]
-    ErrorDocument 400 /index.php
-    ErrorDocument 401 /index.php
-    ErrorDocument 403 /index.php
-    ErrorDocument 404 /index.php
-    ErrorDocument 500 /index.php
-    ErrorDocument 502 /index.php
-    ErrorDocument 503 /index.php
+## 📝 Quick Start
 
+### Routing
 
-# Nginx rewrite rule for Router
-    location / {
-        rewrite ^(.*)$ /index.php?$1 last;   
-    }
+```php
+use Core\Router;
+
+// Basic route
+Router::get('/', function() {
+    return 'Hello World';
+});
+
+// Route with parameter
+Router::get('/user/{id}', function($param) {
+    return 'User ID - ' . $param['id'];
+});
+
+// Route with controller
+Router::get('/home', App\Controller\HomeController::class, 'method');
+```
+
+---
+
+### Database Querying
+
+```php
+$db = Core\Database::getInstance();
+// or: $db = new Alkane\Database(?$custom_connection_name);
+
+$sql = new Core\SqlQuery($db);
+$sql->select(['ID', 'name', 'email'])
+    ->from('table')
+    ->where('ID = :id', ['id' => 20]);
+
+$result = $sql->exec();
+print_r($result->fetch(Core\SqlQuery::FETCH_ASSOC));
+```
+
+---
+
+### Session Management
+
+```php
+Core\SessionController::set('mail.smtp.host', 'smtp.gmail.com');
+Core\SessionController::set('mail.smtp.user', 'user@gmail.com');
+Core\SessionController::set('mail.smtp.password', 'your_password');
+
+// Retrieve session data
+print_r(Core\SessionController::get('mail.smtp'));
+
+/* Output:
+Array (
+    [host] => smtp.gmail.com
+    [user] => user@gmail.com
+    [password] => your_password
+)
+*/
+```
+
+---
+
+## 🌐 Web Server Configuration
+
+### Apache
+
+Add the following rewrite rules to your `.htaccess`:
+
+```
+RewriteEngine On
+RewriteRule ^(.*)$ index.php [L,QSA]
+
+ErrorDocument 400 /index.php
+ErrorDocument 401 /index.php
+ErrorDocument 403 /index.php
+ErrorDocument 404 /index.php
+ErrorDocument 500 /index.php
+ErrorDocument 502 /index.php
+ErrorDocument 503 /index.php
+```
+
+### Nginx
+
+Paste this in your server block:
+
+```
+location / {
+    rewrite ^(.*)$ /index.php?$1 last;
+}
+```
+
+---
+
+## 📚 Documentation
+
+Official documentation is coming soon. For now, see the example code above or explore the source!
+
+---
+
+## 🤝 Contributing
+
+Pull requests and issues are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 💬 Contact
+
+- [Sadiq Hossain](https://github.com/sadiq-bd)
+
+---
