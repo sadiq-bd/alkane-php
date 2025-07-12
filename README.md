@@ -138,6 +138,6 @@ This project is licensed under the MIT License.
 
 ## 💬 Contact
 
-- [Sadiq Hossain](https://github.com/sadiq-bd)
+- [Sadiq Ahmed](https://github.com/sadiq-bd)
 
 ---
