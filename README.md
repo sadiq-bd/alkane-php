@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://api.sadiq.us.to/app/github/repo/alkane-php/views" alt="Repository Views" />
+  <img src="https://api.sadiq.workers.dev/app/github/repo/alkane-php/views" alt="Repository Views" />
 </p>
 
 <h1 align="center">Alkane PHP v2.1</h1>
